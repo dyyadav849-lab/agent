@@ -1,0 +1,25 @@
+- name: "hades-kb-service"
+  helix_entity_reference: "component:hades-kb-service"
+  language: python
+  type: service
+  archs: ["arm64"]
+
+  #Docker images
+  docker_build:
+    image_tag: "${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}-${CI_PIPELINE_ID}"
+    cache: 
+      use: true
+      ttl: 164h30m9s
+    dockerfile_path: "./Dockerfile"
+    docker_repositories:
+      enable_production: true
+      staging: 901250064728.dkr.ecr.ap-southeast-1.amazonaws.com
+      production: 129026697997.dkr.ecr.ap-southeast-1.amazonaws.com
+  runner:
+    staging: mngd-k8s-stg
+    production: mngd-k8s-prd
+    resource:
+      memory_request: 4Gi
+      memory_limit: 4Gi
+      
+      

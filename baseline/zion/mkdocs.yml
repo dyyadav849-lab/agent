@@ -1,0 +1,15 @@
+site_name: Zion
+nav:
+  - Home: index.md
+  - Evaluating LLM agents:
+      - Getting Started: llm-evaluation_evaluating-llm-agent-and-actions-in-zion.md
+  - Zion API as Agent:
+      - Getting Started: zion-api-as-agent_getting-started.md
+      - Onboarding Guide: zion-api-as-agent_onboarding-guide.md
+      - Zion Agent API Specification: zion-api-as-agent_zion-agent-api-specification.md
+      - Zion Public Common Plugin List: zion-api-as-agent_zion-plugin.md
+plugins:
+  - techdocs-core
+  - kroki:
+      FencePrefix: ""
+      ServerURL: !ENV KROKI_BASE_URL

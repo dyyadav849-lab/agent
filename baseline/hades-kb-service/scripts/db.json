@@ -1,0 +1,11 @@
+{
+  "BeforeTest": [
+    {
+      "TYPE": "migrate_postgres",
+      "DBName": "hades_kb_service",
+      "TestUser": "",
+      "TestPassword": "",
+      "MigrateSQLDir": "$CODE_DIR/databases/postgresql"
+    }
+  ]
+}

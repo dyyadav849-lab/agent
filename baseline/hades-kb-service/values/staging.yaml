@@ -1,0 +1,47 @@
+container:
+  resources:
+    limits:
+      cpu: 1.0
+      memory: 2048Mi
+    requests:
+      cpu: 1.0
+      memory: 2048Mi
+  env:
+    - name: SECRET_INI_PATH
+      value: /vault/secrets/secret.ini
+  ports:
+    - name: http
+      port: 8088
+  healthCheck:
+    protocol: HTTP
+    port: 8088
+    path: /health_check
+    maxServiceStartupTimeInSecondsDividedByFive: 50
+IAMRoleARN: arn:aws:iam::011014824127:role/hades-kb-service/hades-kb-service/k8s-role-hades-kb-service-b6e29c01
+vault:
+  enabled: true
+  role: hades-kb-service--hades-kb-service--hades-kb-service
+  sidecarEnabled: true
+  secrets:
+    - name: secret.ini
+      template: |
+        [SECRET]
+        POSTGRES_DB_PASSWORD={{ with secret "stg/rds/809270460106/credentials/stg-hades-kb-service/hades_kb_service" }}{{ .Data.value }}{{ end }}
+        GRABGPT_API_KEY={{ with secret "stg/service/hades-kb-service/grabgpt" }}{{ .Data.api_key }}{{ end }}
+        DOCUMENT_RAG_SECRET_KEY= {{ with secret "stg/service/hades-kb-service/document_rag" }}{{ .Data.secret_key }}{{ end }}
+        {{ if secrets "stg/service/hades-kb-service/" | contains "langchain" }}
+        LANGCHAIN_API_KEY={{ with secret "stg/service/hades-kb-service/langchain" }}{{ .Data.api_key }}{{ end }}
+        {{ end }}
+consul:
+  enabled: false
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 3
+  metrics:
+    targetCPUUtilizationPercentage: 60
+podSecurityPolicy:
+  securityGroupIds:
+    - sg-0edba4d80b6721c23
+podAnnotations:
+  ad.datadoghq.com/tags: '{"tech_family": "NotFound"}'

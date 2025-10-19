@@ -1,0 +1,159 @@
+variables:
+  BASE_IMAGE_TAG: "dummy" #TODO: change this with the base-image tag after the base-image is pushed
+  PIPELINE_TYPE: "ci"
+
+# gen-tag:
+#   stage: build-base-image
+#   image: docker-registry.gitlab.myteksi.net/library/ubuntu:22.04
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#       changes:
+#         - base-image.Dockerfile
+#       when: always
+#   script:
+#     - echo "BASE_IMAGE_TAG=$(date +"%Y%m%d")-${CI_PIPELINE_IID}" | tee tag.env
+#   artifacts:
+#     reports:
+#       dotenv: tag.env
+
+# build-base-image:
+#   stage: build-base-image
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#       changes:
+#         - base-image.Dockerfile
+#       when: always
+#   image:
+#     name: 901250064728.dkr.ecr.ap-southeast-1.amazonaws.com/kaniko-executor:v1.9.2-debug
+#     entrypoint: [""]
+#   script:
+#     - /kaniko/executor
+#       --context "${CI_PROJECT_DIR}"
+#       --dockerfile "${CI_PROJECT_DIR}/base-image.Dockerfile"
+#       --destination "${CI_REGISTRY_IMAGE}/base-image:${BASE_IMAGE_TAG}"
+#   tags:
+#     - mngd-k8s-stg
+#   needs:
+#     - gen-tag
+
+# .base:
+#   image: ${CI_REGISTRY_IMAGE}/base-image:${BASE_IMAGE_TAG}
+#   rules:
+#     - if: $PIPELINE_TYPE != "ci"
+#       when: never
+#     - if: $GITLAB_USER_ID == "6404" # Skip this CI Job when trigger service deployment via Conveyor
+#       when: never
+#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+#   tags:
+#     - mngd-k8s-stg
+
+# TODO: Fill your test process
+# unit_test:
+#   stage: test
+#   extends: .base
+#   script:
+#     - echo "Fill your test process"
+
+# TODO: Fill if you need to build a binary, otherwise you can remove this stage
+# build-binary:
+#   stage: build
+#   extends: .base
+#   script:
+#     - echo "Fill your binary build process, delete the job if there aren't any" > o.out
+#   artifacts:
+#     paths:
+#       - o.out
+
+.build-service-image:
+  stage: build
+  variables:
+    CACHE_TTL: "168h0m0s" # 7 days
+  before_script:
+    - printenv
+  # needs: #TODO: Remove part after this if you do not build a binary/executable
+  #   - build-binary
+
+code-quality-check:
+  stage: lint
+  image: docker-registry.gitlab.myteksi.net/library/python:3.11
+  script:
+    - pip install poetry
+    - poetry config virtualenvs.create false
+    - poetry install
+    - cp configs/secret.ini.example configs/secret.ini
+    - make lint
+    - make test
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
+submit-test-report:
+  stage: test
+  image: docker-registry.gitlab.myteksi.net/library/python:3.11
+  script:
+    - pip install poetry
+    - poetry config virtualenvs.create false
+    - poetry install
+    - cp configs/secret.ini.example configs/secret.ini
+    - make test
+    - python scripts/submit_urs_report.py
+  only:
+    - master
+
+
+docker-image-build:staging:
+  extends: .build-service-image
+  image:
+    name: 901250064728.dkr.ecr.ap-southeast-1.amazonaws.com/kaniko-executor:v1.9.2-debug
+    entrypoint: [""]
+  rules:
+    - if: $PIPELINE_TYPE != "ci"
+      when: never
+    - if: $GITLAB_USER_ID == "6404" # Skip this CI Job when trigger service deployment via Conveyor
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  script:
+    - echo "{\"credsStore\":\"ecr-login\",\"credHelpers\":{\"$STG_DOCKER_REGISTRY_URL\":\"ecr-login\"},\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - cat /kaniko/.docker/config.json
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --compressed-caching=false
+      --destination "${STG_DOCKER_IMAGE_URL}"
+      --cache=true
+      --cache-repo "${STG_DOCKER_REPOSITORY_URL}"
+      --cache-ttl "${CACHE_TTL}"
+      # --build-arg "BINARY=${CI_PROJECT_DIR}/o.out"
+  tags:
+    - mngd-k8s-stg
+
+docker-image-build:production:
+  extends: .build-service-image
+  image:
+    name: 129026697997.dkr.ecr.ap-southeast-1.amazonaws.com/kaniko-executor:v1.9.2-debug
+    entrypoint: [""]
+  rules:
+    - if: $PIPELINE_TYPE != "ci"
+      when: never
+    - if: $GITLAB_USER_ID == "6404" # Skip this CI Job when trigger service deployment via Conveyor
+      when: never
+    - if: $DOCKER_IMAGE_BUILD__ENABLE_PRODUCTION != "true"
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  script:
+    - echo "{\"credsStore\":\"ecr-login\",\"credHelpers\":{\"$PRD_DOCKER_REGISTRY_URL\":\"ecr-login\"},\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - cat /kaniko/.docker/config.json
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --compressed-caching=false
+      --destination "${PRD_DOCKER_IMAGE_URL}"
+      --cache=true
+      --cache-repo "${PRD_DOCKER_REPOSITORY_URL}"
+      --cache-ttl "${CACHE_TTL}"
+      # --build-arg "BINARY=${CI_PROJECT_DIR}/o.out"
+  tags:
+    - mngd-k8s-prd

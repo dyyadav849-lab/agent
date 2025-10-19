@@ -1,0 +1,97 @@
+container:
+  resources:
+    limits:
+      cpu: 2
+      memory: 4Gi
+    requests:
+      cpu: 2
+      memory: 4Gi
+  env:
+    - name: SECRET_INI_PATH
+      value: /vault/secrets/secret.ini
+    - name: WEB_CONCURRENCY
+      value: "2"
+  ports:
+    - name: http
+      port: 8000
+  healthCheck:
+    protocol: TCP
+    port: 8000
+    path: /
+    startupInitialDelaySeconds: 300  # defaults to 0; this means startup probe starts right after main app container is started
+    livenessInitialDelaySeconds: 300 # defaults to 0; this means liveness probe starts right after startup probe passed
+
+IAMRoleARN: arn:aws:iam::011014824127:role/zion/zion/k8s-role-zion-890f4f2e
+vault:
+  enabled: true
+  role: zion--zion--zion
+  sidecarEnabled: false
+  secrets:
+    - name: secret.ini
+      template: |
+        [SECRET]
+        MYSQL_DB_PASSWORD="{{- with secret "stg/rds/809270460106/credentials/stg-zion/zion" -}}{{ .Data.value }}{{- end -}}"
+        GRAB_GITLAB_ACCESS_TOKEN="{{- with secret "stg/service/zion/gitlab" -}}{{ .Data.service_acc_token }}{{- end -}}"
+        OPENAI_API_KEY="{{- with secret "stg/service/zion/azure" -}}{{ .Data.azure_openai_api_key }}{{- end -}}"
+        AIHOME_OPENAI_API_KEY="{{- with secret "stg/service/zion/azure" -}}{{ .Data.aihome_openai_api_key }}{{- end -}}"
+        HADES_DOCUMENT_RAG_SECRET_KEY = "{{- with secret "stg/service/zion/hades-kb-service" -}}{{ .Data.document_rag_secret }}{{- end -}}"
+        GITLAB_API_TOKEN="{{- with secret "stg/service/zion/gitlab" -}}{{ .Data.gitlab_api_token }}{{- end -}}"
+        SOURCEGRAPH_ACCESS_TOKEN="{{ with secret "stg/service/zion/sourcegraph" }}{{ .Data.sourcegraph_access_token }}{{ end }}"
+
+        # Agent secrets
+        AGENT_SECRET_TI_BOT="{{- with secret "stg/service/zion/agent" -}}{{ .Data.ti_bot }}{{- end -}}"
+        AGENT_KINABALU_SECRET="{{- with secret "stg/service/zion/agent" -}}{{ .Data.kinabalu }}{{- end -}}"
+        TEST_TOKEN_SECRET="{{- with secret "stg/service/zion/agent" -}}{{ .Data.test_token_secret }}{{- end -}}"
+        AGENT_FLIP_SECRET="{{- with secret "stg/service/zion/agent" -}}{{ .Data.flip }}{{- end -}}"
+        AGENT_DATANINJA_SECRET="{{- with secret "stg/service/zion/agent" -}}{{ .Data.dataninja }}{{- end -}}"
+        AGENT_FRIDAYSERVICEQUERY_SECRET="{{- with secret "stg/service/zion/agent" -}}{{ .Data.friday_service_query }}{{- end -}}"
+        GRABGPT_AGENT_SECRET="{{- with secret "stg/service/zion/agent" -}}{{ .Data.grabgpt_agent }}{{- end -}}"
+
+        # For Grab Concedo
+        CONCEDO_PRIVATE_KEY="{{- with secret "stg/service/zion/concedo" -}}{{ .Data.private_key }}{{- end -}}"
+        CONCEDO_CLIENT_SECRET="{{- with secret "stg/service/zion/concedo" -}}{{ .Data.client_secret }}{{- end -}}"
+
+        # LangChain
+        LANGCHAIN_API_KEY="{{- with secret "stg/service/zion/langsmith" -}}{{ .Data.api_key }}{{- end -}}"
+
+        # Glean
+        GLEAN_BEARER_TOKEN = "{{- with secret "stg/service/zion/glean" -}}{{ .Data.glean_bearer_token }}{{- end -}}"
+
+        # Confluence
+        CONFLUENCE_PASSWORD="{{- with secret "stg/service/zion/confluence" -}}{{ .Data.api_key }}{{- end -}}"
+
+        # Jira
+        JIRA_PASSWORD="{{- with secret "stg/service/zion/jira" -}}{{ .Data.password }}{{- end -}}"
+
+        # Presto
+        PRESTO_PASSWORD="{{- with secret "stg/service/zion/presto" -}}{{ .Data.password }}{{- end -}}"
+
+        # Google Service Account
+        GOOGLE_PRIVATE_KEY_ID = "{{- with secret "stg/service/zion/google-tokens" -}}{{ .Data.google_private_key_id }}{{- end -}}"
+        GOOGLE_PRIVATE_KEY = "{{- with secret "stg/service/zion/google-tokens" -}}{{ .Data.google_private_key }}{{- end -}}"
+
+        # Kibana Service Account
+        KIBANA_PASSWORD = "{{- with secret "stg/service/zion/kibana" -}}{{ .Data.password }}{{- end -}}"
+
+        # Fernet Key (Cryptography)
+        FERNET_KEY = "{{- with secret "stg/service/zion/private" -}}{{ .Data.fernet_key }}{{- end -}}"
+
+         # Datadog Key and Name
+        DATADOG_API_KEY="{{- with secret "stg/service/zion/datadog" -}}{{ .Data.api_key }}{{- end -}}"
+        DATADOG_APP_KEY="{{- with secret "stg/service/zion/datadog" -}}{{ .Data.app_key }}{{- end -}}"
+consul:
+  enabled: false
+  serviceProtocol: false
+  useSmiForUpstreams: true
+  freezeCrdSync: true
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 3
+  metrics:
+    targetCPUUtilizationPercentage: 60
+podSecurityPolicy:
+  securityGroupIds:
+    - sg-0a2c0d47be0125ba9
+
+config: {}

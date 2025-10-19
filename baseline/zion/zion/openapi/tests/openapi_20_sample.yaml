@@ -1,0 +1,1323 @@
+basePath: /tisupportbot
+consumes:
+- application/json
+definitions:
+  protobufAny:
+    description: |-
+      `Any` contains an arbitrary serialized protocol buffer message along with a
+      URL that describes the type of the serialized message.
+
+      Protobuf library provides support to pack/unpack Any values in the form
+      of utility functions or additional generated methods of the Any type.
+
+      Example 1: Pack and unpack a message in C++.
+
+          Foo foo = ...;
+          Any any;
+          any.PackFrom(foo);
+          ...
+          if (any.UnpackTo(&foo)) {
+            ...
+          }
+
+      Example 2: Pack and unpack a message in Java.
+
+          Foo foo = ...;
+          Any any = Any.pack(foo);
+          ...
+          if (any.is(Foo.class)) {
+            foo = any.unpack(Foo.class);
+          }
+          // or ...
+          if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+            foo = any.unpack(Foo.getDefaultInstance());
+          }
+
+       Example 3: Pack and unpack a message in Python.
+
+          foo = Foo(...)
+          any = Any()
+          any.Pack(foo)
+          ...
+          if any.Is(Foo.DESCRIPTOR):
+            any.Unpack(foo)
+            ...
+
+       Example 4: Pack and unpack a message in Go
+
+           foo := &pb.Foo{...}
+           any, err := anypb.New(foo)
+           if err != nil {
+             ...
+           }
+           ...
+           foo := &pb.Foo{}
+           if err := any.UnmarshalTo(foo); err != nil {
+             ...
+           }
+
+      The pack methods provided by protobuf library will by default use
+      'type.googleapis.com/full.type.name' as the type URL and the unpack
+      methods only use the fully qualified type name after the last '/'
+      in the type URL, for example "foo.bar.com/x/y.z" will yield type
+      name "y.z".
+
+      JSON
+      ====
+      The JSON representation of an `Any` value uses the regular
+      representation of the deserialized, embedded message, with an
+      additional field `@type` which contains the type URL. Example:
+
+          package google.profile;
+          message Person {
+            string first_name = 1;
+            string last_name = 2;
+          }
+
+          {
+            "@type": "type.googleapis.com/google.profile.Person",
+            "firstName": <string>,
+            "lastName": <string>
+          }
+
+      If the embedded message type is well-known and has a custom JSON
+      representation, that representation will be embedded adding a field
+      `value` which holds the custom JSON in addition to the `@type`
+      field. Example (for message [google.protobuf.Duration][]):
+
+          {
+            "@type": "type.googleapis.com/google.protobuf.Duration",
+            "value": "1.212s"
+          }
+    properties:
+      type_url:
+        description: |-
+          A URL/resource name that uniquely identifies the type of the serialized
+          protocol buffer message. This string must contain at least
+          one "/" character. The last segment of the URL's path must represent
+          the fully qualified name of the type (as in
+          `path/google.protobuf.Duration`). The name should be in a canonical form
+          (e.g., leading "." is not accepted).
+
+          In practice, teams usually precompile into the binary all types that they
+          expect it to use in the context of Any. However, for URLs which use the
+          scheme `http`, `https`, or no scheme, one can optionally set up a type
+          server that maps type URLs to message definitions as follows:
+
+          * If no scheme is provided, `https` is assumed.
+          * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+            value in binary format, or produce an error.
+          * Applications are allowed to cache lookup results based on the
+            URL, or have them precompiled into a binary to avoid any
+            lookup. Therefore, binary compatibility needs to be preserved
+            on changes to types. (Use versioned type names to manage
+            breaking changes.)
+
+          Note: this functionality is not currently available in the official
+          protobuf release, and it is not used for type URLs beginning with
+          type.googleapis.com. As of May 2023, there are no widely used type server
+          implementations and no plans to implement one.
+
+          Schemes other than `http`, `https` (or the empty scheme) might be
+          used with implementation specific semantics.
+        type: string
+      value:
+        description: Must be a valid serialized protocol buffer of the above specified
+          type.
+        format: byte
+        type: string
+    type: object
+  protobufNullValue:
+    default: NULL_VALUE
+    description: |-
+      `NullValue` is a singleton enumeration to represent the null value for the
+      `Value` type union.
+
+      The JSON representation for `NullValue` is JSON `null`.
+
+       - NULL_VALUE: Null value.
+    enum:
+    - NULL_VALUE
+    type: string
+  runtimeError:
+    properties:
+      code:
+        format: int32
+        type: integer
+      details:
+        items:
+          $ref: '#/definitions/protobufAny'
+        type: array
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  tisupportbotpbAgentHeaderSchema:
+    properties:
+      header_key:
+        type: string
+      header_val:
+        type: string
+    type: object
+  tisupportbotpbAgentMetadata:
+    properties:
+      header_schema:
+        items:
+          $ref: '#/definitions/tisupportbotpbAgentHeaderSchema'
+        type: array
+    type: object
+  tisupportbotpbAgentSchema:
+    properties:
+      invoke_agent_schema:
+        $ref: '#/definitions/tisupportbotpbInvokeAgentSchema'
+    type: object
+  tisupportbotpbConcedoCallbackRequest:
+    properties:
+      code:
+        type: string
+      state:
+        type: string
+    type: object
+  tisupportbotpbConcedoCallbackResponse:
+    properties:
+      access_token:
+        type: string
+    type: object
+  tisupportbotpbConcedoLoginResponse:
+    properties:
+      is_error:
+        type: boolean
+      redirect_url:
+        type: string
+    type: object
+  tisupportbotpbConcedoLogoutRequest:
+    properties:
+      user_email:
+        type: string
+    type: object
+  tisupportbotpbConcedoLogoutResponse:
+    properties:
+      is_error:
+        type: boolean
+      is_logout:
+        type: boolean
+    type: object
+  tisupportbotpbConcedoSessionRequest:
+    properties:
+      user_email:
+        type: string
+    type: object
+  tisupportbotpbConcedoSessionResponse:
+    properties:
+      is_active:
+        type: boolean
+      user_email:
+        type: string
+    type: object
+  tisupportbotpbCrawlerRequest:
+    properties:
+      action:
+        type: string
+      crawler_key:
+        type: string
+      fields:
+        items:
+          type: string
+        type: array
+      jql_query:
+        type: string
+      requester:
+        type: string
+      status:
+        type: string
+    type: object
+  tisupportbotpbCrawlerResponse:
+    properties:
+      crawler_key:
+        type: string
+      data:
+        type: object
+    type: object
+  tisupportbotpbCreateTISupportAgentRequest:
+    properties:
+      agent_schema:
+        $ref: '#/definitions/tisupportbotpbAgentSchema'
+      agent_type:
+        type: string
+      channel_whitelisting:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      id:
+        format: int64
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      user_ownerships:
+        type: string
+    type: object
+  tisupportbotpbCreateTISupportAgentResponse:
+    properties:
+      agent_data:
+        $ref: '#/definitions/tisupportbotpbCreateTISupportAgentRequest'
+      status:
+        type: string
+    type: object
+  tisupportbotpbCreateTISupportConfigsRequest:
+    properties:
+      channel_id:
+        type: string
+      config_data:
+        type: string
+      config_key:
+        type: string
+      creator:
+        type: string
+      status:
+        type: string
+    type: object
+  tisupportbotpbCreateTISupportConfigsResponse:
+    properties:
+      config_data:
+        type: string
+      status:
+        type: string
+    type: object
+  tisupportbotpbGetHelixEntityRequest:
+    properties:
+      display_name:
+        type: string
+      entity_type:
+        type: string
+      name:
+        type: string
+      parent_name:
+        type: string
+    type: object
+  tisupportbotpbGetHelixEntityResponse:
+    properties:
+      results:
+        type: object
+    type: object
+  tisupportbotpbGetMTTXThreadStatusResponse:
+    properties:
+      level_zero:
+        $ref: '#/definitions/tisupportbotpbLevelZeroStatus'
+      slack_user_id:
+        type: string
+      topic_tracker:
+        $ref: '#/definitions/tisupportbotpbTopicTrackerStatus'
+    type: object
+  tisupportbotpbGetSlackChannelsResponse:
+    properties:
+      message:
+        type: string
+      slackChannels:
+        items:
+          $ref: '#/definitions/tisupportbotpbSlackChannelsResponse'
+        type: array
+    type: object
+  tisupportbotpbGetSlackConvosForAutodocsRequest:
+    properties:
+      slack_link:
+        type: string
+    type: object
+  tisupportbotpbGetSlackConvosForAutodocsResponse:
+    properties:
+      slack_link:
+        type: string
+      slack_messages:
+        items:
+          $ref: '#/definitions/tisupportbotpbSlackMessageZion'
+        type: array
+    type: object
+  tisupportbotpbGetSlackSuggestionsResponse:
+    properties:
+      count:
+        format: int32
+        type: integer
+      message:
+        type: string
+      results:
+        items:
+          $ref: '#/definitions/tisupportbotpbSlackSuggestion'
+        type: array
+    type: object
+  tisupportbotpbGetSummarizedSlackThreadResponse:
+    properties:
+      status:
+        type: string
+      thread:
+        items:
+          $ref: '#/definitions/tisupportbotpbSlackThreadContent'
+        type: array
+    type: object
+  tisupportbotpbGetTISupportAgentResponse:
+    properties:
+      agent_details:
+        items:
+          $ref: '#/definitions/tisupportbotpbRemoteAgent'
+        type: array
+    type: object
+  tisupportbotpbGetTISupportConfigsResponse:
+    properties:
+      configs:
+        items:
+          $ref: '#/definitions/tisupportbotpbTISupportConfigsResponse'
+        type: array
+      message:
+        type: string
+      num_matching_configs:
+        format: int64
+        type: string
+    type: object
+  tisupportbotpbGetTISupportTopicsResponse:
+    properties:
+      hasNextPage:
+        type: boolean
+      pageNumber:
+        format: int32
+        type: integer
+      pageSize:
+        format: int32
+        type: integer
+      results:
+        type: object
+      totalRecords:
+        format: int32
+        type: integer
+    type: object
+  tisupportbotpbGetTopicRequest:
+    properties:
+      channel_id:
+        type: string
+      entity_type:
+        type: string
+      status:
+        type: string
+      storage_id:
+        type: string
+    type: object
+  tisupportbotpbGetTopicResponse:
+    properties:
+      entity_type:
+        type: string
+      results:
+        type: object
+    type: object
+  tisupportbotpbGetUsersRequest:
+    properties:
+      email:
+        type: string
+      key:
+        type: string
+      query:
+        type: string
+      query_type:
+        type: string
+      slack_id:
+        type: string
+    type: object
+  tisupportbotpbGetUsersResponse:
+    properties:
+      count:
+        format: int64
+        type: string
+      email:
+        type: string
+      key:
+        type: string
+      result:
+        type: object
+      slack_id:
+        type: string
+    type: object
+  tisupportbotpbGetUsersSuggestionsResponse:
+    properties:
+      count:
+        format: int64
+        type: string
+      query:
+        type: string
+      query_type:
+        type: string
+      user_suggestions:
+        items:
+          $ref: '#/definitions/tisupportbotpbUsersSuggestionsResponse'
+        type: array
+    type: object
+  tisupportbotpbHelloRequest:
+    properties:
+      name:
+        title: Use underscore_separated_names for field names. See https://developers.google.com/protocol-buffers/docs/style
+        type: string
+    type: object
+  tisupportbotpbHelloResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  tisupportbotpbInvokeAgentSchema:
+    properties:
+      metadata:
+        $ref: '#/definitions/tisupportbotpbAgentMetadata'
+      request_schema:
+        type: string
+      response_schema:
+        type: string
+      schema_url:
+        type: string
+    type: object
+  tisupportbotpbLevelZeroStatus:
+    properties:
+      agent_type:
+        type: string
+      can_be_answered:
+        type: string
+      level_zero_state:
+        type: string
+      query:
+        type: string
+      query_category:
+        type: string
+      search_strategy:
+        type: string
+      user_feedback:
+        type: string
+    type: object
+  tisupportbotpbRemoteAgent:
+    properties:
+      agent_schema:
+        $ref: '#/definitions/tisupportbotpbAgentSchema'
+      agent_type:
+        type: string
+      channel_whitelisting:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      id:
+        format: int64
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      user_ownerships:
+        type: string
+    type: object
+  tisupportbotpbResponseTimeRequest:
+    properties:
+      acknowledged_time:
+        type: string
+      issue_key:
+        type: string
+      resolved_time:
+        format: float
+        type: number
+      status:
+        type: string
+    type: object
+  tisupportbotpbResponseTimeResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  tisupportbotpbSchedulerRequest:
+    properties:
+      action:
+        type: string
+      cronspec:
+        type: string
+      data:
+        type: object
+      group:
+        type: string
+      name:
+        type: string
+      queue:
+        type: string
+      status:
+        type: string
+      timeout:
+        format: int64
+        type: string
+      type:
+        type: string
+    type: object
+  tisupportbotpbSchedulerResponse:
+    properties:
+      cronspec:
+        type: string
+      name:
+        type: string
+      resultMessages:
+        items:
+          type: string
+        type: array
+      status:
+        type: string
+      type:
+        type: string
+    type: object
+  tisupportbotpbSlackChannelsResponse:
+    properties:
+      channel_id:
+        type: string
+      channel_name:
+        type: string
+    type: object
+  tisupportbotpbSlackMessageMetadata:
+    properties:
+      channel:
+        type: string
+      message_timestamp:
+        type: string
+    type: object
+  tisupportbotpbSlackMessageZion:
+    properties:
+      account_type:
+        type: string
+      content:
+        type: string
+      username:
+        type: string
+    type: object
+  tisupportbotpbSlackSuggestion:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  tisupportbotpbSlackThreadContent:
+    properties:
+      created_at:
+        type: string
+      gpt_summarised_answer:
+        type: string
+      id:
+        type: string
+      summarised_user_query:
+        type: string
+    type: object
+  tisupportbotpbTISupportConfigsResponse:
+    properties:
+      channel_id:
+        type: string
+      channel_name:
+        type: string
+      config_data:
+        type: string
+      config_key:
+        type: string
+      creator:
+        type: string
+      creator_name:
+        type: string
+      drafting_config_data:
+        type: string
+      has_write_access:
+        type: boolean
+      maintainer_slack_groups:
+        items:
+          $ref: '#/definitions/tisupportbotpbSlackSuggestion'
+        type: array
+      on_first_reply_from_groups:
+        items:
+          $ref: '#/definitions/tisupportbotpbSlackSuggestion'
+        type: array
+      on_first_reply_from_users:
+        items:
+          $ref: '#/definitions/tisupportbotpbSlackSuggestion'
+        type: array
+      project_key:
+        type: string
+      service_name:
+        type: string
+      status:
+        type: string
+      tagged_groups:
+        items:
+          $ref: '#/definitions/tisupportbotpbSlackSuggestion'
+        type: array
+      tagged_users:
+        items:
+          $ref: '#/definitions/tisupportbotpbSlackSuggestion'
+        type: array
+      workflow:
+        type: string
+    type: object
+  tisupportbotpbTestSourcegraphRequest:
+    properties:
+      batch_name:
+        type: string
+      repo_name:
+        type: string
+    type: object
+  tisupportbotpbTestSourcegraphResponse:
+    properties:
+      message:
+        type: string
+      results:
+        type: object
+      status:
+        type: string
+    type: object
+  tisupportbotpbTopicTrackerStatus:
+    properties:
+      acknowledged_by:
+        type: string
+      acknowledged_time:
+        type: string
+      resolved_by:
+        type: string
+      resolved_time:
+        type: string
+      status:
+        type: string
+    type: object
+  tisupportbotpbUpdateTISupportConfigsRequest:
+    properties:
+      channel_id:
+        type: string
+      config_data:
+        type: string
+      config_key:
+        type: string
+      creator:
+        type: string
+      status:
+        type: string
+    type: object
+  tisupportbotpbUpdateTISupportConfigsResponse:
+    properties:
+      config_data:
+        type: string
+      status:
+        type: string
+    type: object
+  tisupportbotpbUsersSuggestionsResponse:
+    properties:
+      slack_id:
+        type: string
+      user_key:
+        type: string
+    type: object
+info:
+  title: tisupportbot.proto
+  version: version not set
+paths:
+  /crawler/{action}:
+    post:
+      operationId: TiSupportBot_Crawler
+      parameters:
+      - in: path
+        name: action
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbCrawlerRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbCrawlerResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /get-mttx-thread-status:
+    post:
+      operationId: TiSupportBot_GetMTTXThreadStatus
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbSlackMessageMetadata'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetMTTXThreadStatusResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /get-slack-convos-for-autodocs:
+    post:
+      operationId: TiSupportBot_GetSlackConvosForAutodocs
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbGetSlackConvosForAutodocsRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetSlackConvosForAutodocsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /helix-entities:
+    post:
+      operationId: TiSupportBot_GetHelixEntity
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbGetHelixEntityRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetHelixEntityResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /hello:
+    post:
+      operationId: TiSupportBot_Hello
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbHelloRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbHelloResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /oidc/callback:
+    post:
+      operationId: TiSupportBot_ConcedoCallback
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbConcedoCallbackRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbConcedoCallbackResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /oidc/login:
+    get:
+      operationId: TiSupportBot_ConcedoLogin
+      parameters:
+      - in: query
+        name: empty
+        required: false
+        type: string
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbConcedoLoginResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /oidc/logout:
+    post:
+      operationId: TiSupportBot_ConcedoLogout
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbConcedoLogoutRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbConcedoLogoutResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /oidc/session:
+    post:
+      operationId: TiSupportBot_ConcedoSession
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbConcedoSessionRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbConcedoSessionResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /populate-response-time:
+    post:
+      operationId: TiSupportBot_BackfillInfo
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbResponseTimeRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbResponseTimeResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /scheduler/{action}:
+    post:
+      operationId: TiSupportBot_Scheduler
+      parameters:
+      - in: path
+        name: action
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbSchedulerRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbSchedulerResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /slack-channel:
+    get:
+      operationId: TiSupportBot_GetSlackChannels
+      parameters:
+      - in: query
+        name: channel_id
+        required: false
+        type: string
+      - in: query
+        name: channel_name
+        required: false
+        type: string
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetSlackChannelsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /slack-thread-summary:
+    post:
+      operationId: TiSupportBot_GetSummarizedSlackThread
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetSummarizedSlackThreadResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /slack/{query_type}:
+    get:
+      operationId: TiSupportBot_GetSlackSuggestions
+      parameters:
+      - in: path
+        name: query_type
+        required: true
+        type: string
+      - in: query
+        name: query
+        required: false
+        type: string
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetSlackSuggestionsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /test-sourcegraph-exec:
+    post:
+      operationId: TiSupportBot_TestSourcegraphExec
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbTestSourcegraphRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbTestSourcegraphResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /ti-support/agents:
+    get:
+      operationId: TiSupportBot_GetTISupportAgent
+      parameters:
+      - in: query
+        name: agent_name
+        required: false
+        type: string
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetTISupportAgentResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+    post:
+      operationId: TiSupportBot_CreateTISupportAgent
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbCreateTISupportAgentRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbCreateTISupportAgentResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+    put:
+      operationId: TiSupportBot_UpdateTISupportAgent
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbCreateTISupportAgentRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbCreateTISupportAgentResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /ti-support/agents/{agent_name}:
+    get:
+      operationId: TiSupportBot_GetTISupportAgent2
+      parameters:
+      - in: path
+        name: agent_name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetTISupportAgentResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /ti-support/configs:
+    get:
+      operationId: TiSupportBot_GetTISupportConfigs
+      parameters:
+      - in: query
+        name: config_key
+        required: false
+        type: string
+      - in: query
+        name: channel_name
+        required: false
+        type: string
+      - in: query
+        name: user_name
+        required: false
+        type: string
+      - format: int32
+        in: query
+        name: page_number
+        required: false
+        type: integer
+      - format: int32
+        in: query
+        name: page_size
+        required: false
+        type: integer
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetTISupportConfigsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+    post:
+      operationId: TiSupportBot_CreateTISupportConfigs
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbCreateTISupportConfigsRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbCreateTISupportConfigsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /ti-support/configs/{config_key}:
+    put:
+      operationId: TiSupportBot_UpdateTISupportConfigs
+      parameters:
+      - in: path
+        name: config_key
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbUpdateTISupportConfigsRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbUpdateTISupportConfigsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /ti-support/topics:
+    get:
+      operationId: TiSupportBot_GetTISupportTopics
+      parameters:
+      - format: int32
+        in: query
+        name: limit
+        required: false
+        type: integer
+      - format: int32
+        in: query
+        name: offset
+        required: false
+        type: integer
+      - in: query
+        name: l0_search_query
+        required: false
+        type: string
+      - in: query
+        name: l0_order_by_field
+        required: false
+        type: string
+      - in: query
+        name: l0_order_by_type
+        required: false
+        type: string
+      - in: query
+        name: l0_from_created_date
+        required: false
+        type: string
+      - in: query
+        name: l0_to_created_date
+        required: false
+        type: string
+      - in: query
+        name: l0_channel_ids
+        required: false
+        type: string
+      - in: query
+        name: l0_slack_user_ids
+        required: false
+        type: string
+      - in: query
+        name: l0_slack_user_names
+        required: false
+        type: string
+      - in: query
+        name: l0_user_feedbacks
+        required: false
+        type: string
+      - in: query
+        name: l0_level_zero_states
+        required: false
+        type: string
+      - in: query
+        name: l0_triggered_by
+        required: false
+        type: string
+      - in: query
+        name: l0_agent_types
+        required: false
+        type: string
+      - in: query
+        name: l0_query_categories
+        required: false
+        type: string
+      - in: query
+        name: l1_statuses
+        required: false
+        type: string
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetTISupportTopicsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /topics:
+    post:
+      operationId: TiSupportBot_GetTopics
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbGetTopicRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetTopicResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /users:
+    post:
+      operationId: TiSupportBot_GetUsers
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbGetUsersRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetUsersResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+  /users/suggestions:
+    post:
+      operationId: TiSupportBot_GetUsersSuggestions
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tisupportbotpbGetUsersRequest'
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/tisupportbotpbGetUsersSuggestionsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/runtimeError'
+      tags:
+      - TiSupportBot
+produces:
+- application/json
+swagger: "2.0"

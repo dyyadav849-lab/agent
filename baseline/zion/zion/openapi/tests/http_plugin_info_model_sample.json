@@ -1,0 +1,200 @@
+
+{
+    "schema_version": "1.0",
+    "name_for_model": "slack_conversation",
+    "name_for_human": "Slack conversation name",
+    "description_for_model": "This can be retrieve slack conversation data",
+    "description_for_human": "This can be retrieve slack conversation data",
+    "type": "http",
+    "owner": [
+      "duyhung.bui"
+    ],
+    "http_plugin_detail": {
+      "service_name": "hades service",
+      "description": "To use hades service for slack knowledgebase search",
+      "server": {
+        "staging": {
+          "host": "www.staging.com"
+        },
+        "production": {
+          "host": "www.production.com"
+        }
+      },
+      "base_headers": [
+        {
+          "name": "{{SECRET:Authorization}}",
+          "value": "Bearer 123"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "path_specification": [
+        {
+          "path": "/slack/chathistory/knowledgebase/{{id}}?{{orderParam}}=1&no=2",
+          "summary": "",
+          "method": "post",
+          "query_params": [
+            {
+              "name": "orderParam",
+              "type": "string",
+              "description": "",
+              "required": true,
+              "value": [
+
+              ]
+            }
+          ],
+          "url_params": [
+            {
+              "name": "id",
+              "type": "string",
+              "description": "",
+              "required": true,
+              "value": [
+                "test-id"
+              ]
+            }
+          ],
+          "custom_headers": [
+            {
+              "name": "X_CUSTOM_DUMMY",
+              "value": "DUMMY"
+            }
+          ],
+          "request_body_schema": {
+            "body_details": "{\n\"{{queryToBeSpecified}}\": \"Ticket couldnt update\",\n\"limit\": 10,\n\"vector_threshold\": 0.5,\n\"{{is_agent}}\": true, \n\"{{test_array}}\": {}\n}",
+            "properties_spec": [
+              {
+                "metadata_name": "queryToBeSpecified",
+                "properties_name": "query",
+                "new_metadata_name": "",
+                "type": "",
+                "sub_type": "",
+                "is_user_specified": false,
+                "value": [
+
+                ],
+                "required": true,
+                "description": "",
+                "sub_type_details": [
+
+                ]
+              },
+              {
+                "metadata_name": "is_agent",
+                "properties_name": "is_agent",
+                "new_metadata_name": "",
+                "type": "boolean",
+                "sub_type": "",
+                "is_user_specified": true,
+                "value": [
+                  "true",
+                  "false"
+                ],
+                "required": true,
+                "description": "",
+                "sub_type_details": [
+
+                ]
+              },
+              {
+                "metadata_name": "test_array",
+                "properties_name": "new_array",
+                "new_metadata_name": "",
+                "type": "array",
+                "sub_type": "integer",
+                "is_user_specified": true,
+                "value": [
+                  "1",
+                  "2",
+                  "3"
+                ],
+                "required": true,
+                "description": "",
+                "sub_type_details": []
+              },
+              {
+                "metadata_name": "test_object",
+                "properties_name": "new_object",
+                "new_metadata_name": "",
+                "type": "object",
+                "sub_type": "",
+                "is_user_specified": true,
+                "value": [
+
+                ],
+                "required": true,
+                "description": "",
+                "sub_type_details": [
+                  {
+                    "properties_name": "is_exists",
+                    "type": "boolean",
+                    "description": "",
+                    "required": true,
+                    "value": [
+                      "true",
+                      "false"
+                    ],
+                    "new_metadata_name": "",
+                    "sub_type": ""
+                  },
+                  {
+                    "properties_name": "count",
+                    "type": "integer",
+                    "description": "",
+                    "required": true,
+                    "value": [
+                      "5",
+                      "10"
+                    ],
+                    "new_metadata_name": "",
+                    "sub_type": ""
+                  }
+                ]
+              }
+            ]
+          },
+          "response_body_schema": [
+            {
+              "body_details": "{\n\"message\": \"Success\",\n\"error\": false,\n\"details\": \"\",\n\"result\": [[]],\n\"pagination\": {\n\"total_items_count\": 0,\n\"page_size\": 0,\n\"current_page\": 1,\n\"total_page\": 0\n}\n}",
+              "properties_spec": [
+
+              ],
+              "status_code": "200",
+              "response_description": "Test description"
+            }
+          ]
+        }
+      ]
+    },
+    "api": {
+      "ref": "",
+      "server": {
+        "staging": {
+          "host": ""
+        },
+        "production": {
+          "host": ""
+        }
+      },
+      "include_paths": [
+
+      ],
+      "access_control": {
+        "agents": {
+          "ti-bot-dm": {
+            "users": [
+              "jiatian.lai"
+            ]
+          },
+          "ti-bot-level-zero": {
+            "slack_channels": [
+              "#support-bot-test"
+            ]
+          }
+        }
+      }
+    }
+  }

@@ -1,0 +1,23 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: hades-kb-service
+  title: hades-kb-service
+  description: knowledge base service for gate's agent
+  labels:
+    criticality: useful
+  annotations:
+    helix.engtools.net/code-base: '{"backend":"https://gitlab.myteksi.net/techops-automation/gate/hades-kb-service", "deployment":"https://gitlab.myteksi.net/techops-automation/gate/hades-kb-service"}'
+    helix.engtools.net/monitoring: '{"datadog": "https://app.datadoghq.com/dashboard/n37-u3i-5pf/mngdinfra-template-gk-services-on-managed-eks?tpl_var_appname%5B0%5D=hades-kb-service"}'
+    helix.engtools.net/incident-management: '{"pagerduty": "https://grabtaxi.pagerduty.com/service-directory/"}'
+    helix.engtools.net/service-channel: https://grab.slack.com/archives/C04FE6H2NG3
+    helix.engtools.net/oncall-tag: '@oncall-gate'
+    helix.engtools.net/test-report: '{"unit": "https://grafana.urs.gandalf.myteksi.net/d/Sy_j54sZk/urs?orgId=1&var-platform=backend&var-service_name=hades-kb-service"}'
+    helix.engtools.net/workstream: GATE
+  tags:
+    - repocop
+    - yoshi
+spec:
+  type: service
+  lifecycle: development
+  primaryPic: kendrick.tan

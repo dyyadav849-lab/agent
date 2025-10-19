@@ -1,0 +1,11 @@
+{
+  "BeforeTest": [
+    {
+      "TYPE": "migrate_mysql",
+      "DBName": "zion",
+      "TestUser": "zion",
+      "TestPassword": "zion",
+      "MigrateSQLDir": "$CODE_DIR/databases/mysql"
+    }
+  ]
+}

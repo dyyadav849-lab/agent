@@ -1,0 +1,2 @@
+variables:
+  PIPELINE_TYPE: ci
